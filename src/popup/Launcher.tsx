@@ -11,6 +11,7 @@ import {
 import { useStore } from "../storage/useStore";
 import { navigate } from "./navigate";
 import { Logo } from "../shared/Logo";
+import { ArrowRight, Gear, OpenModeIcon } from "../shared/icons";
 
 const MOD = navigator.platform.toLowerCase().includes("mac") ? "⌘" : "Ctrl";
 
@@ -105,7 +106,7 @@ export function Launcher() {
   return (
     <div className="launcher" onKeyDown={onKeyDown}>
       <div className="search">
-        <Logo size={20} />
+        <Logo size={22} />
         <input
           ref={inputRef}
           value={input}
@@ -114,10 +115,12 @@ export function Launcher() {
           spellCheck={false}
           autoComplete="off"
         />
-        {input && (
+        {input ? (
           <button className="clear" onClick={() => { setInput(""); inputRef.current?.focus(); }} aria-label="Clear" tabIndex={-1}>
             ×
           </button>
+        ) : (
+          <span className="esc">esc</span>
         )}
       </div>
 
@@ -126,22 +129,26 @@ export function Launcher() {
 
       {!hasArgs && (
         <ul className="list" role="listbox">
-          {list.map((c, i) => (
-            <li
-              key={c.id}
-              role="option"
-              aria-selected={i === selected}
-              className={i === selected ? "selected" : undefined}
-              onMouseEnter={() => setSelected(i)}
-              onClick={() => insertKeyword(c)}
-            >
-              <span className="kw">{c.keyword}</span>
-              <span className="name">{c.name}</span>
-              <span className="vars">
-                {variablesOf(c).map((v) => <span key={v} className="var">{v}</span>)}
-              </span>
-            </li>
-          ))}
+          {list.map((c, i) => {
+            const vars = variablesOf(c);
+            return (
+              <li
+                key={c.id}
+                role="option"
+                aria-selected={i === selected}
+                className={i === selected ? "selected" : undefined}
+                onMouseEnter={() => setSelected(i)}
+                onClick={() => insertKeyword(c)}
+              >
+                <span className="kw">{c.keyword}</span>
+                <span className="name">{c.name}</span>
+                <span className="hint">
+                  <OpenModeIcon mode={c.openMode} size={12} />
+                  {vars.length > 0 ? vars.map((v) => `<${v}>`).join(" ") : "—"}
+                </span>
+              </li>
+            );
+          })}
           {store && list.length === 0 && (
             <li className="empty">
               {commands.length === 0 ? "No commands yet." : "No matching commands."}{" "}
@@ -152,13 +159,12 @@ export function Launcher() {
       )}
 
       <div className="footer">
-        <span className="keys">
-          <span><kbd>↵</kbd> open</span>
-          <span><kbd>{MOD}↵</kbd> new tab</span>
-          <span><kbd>⇧↵</kbd> background</span>
-          <span><kbd>⇥</kbd> complete</span>
-        </span>
-        <a href="#" onClick={openOptions}>Manage <kbd>{MOD},</kbd></a>
+        <span className="key"><kbd>↵</kbd>open</span>
+        <span className="key"><kbd>{MOD}↵</kbd>new tab</span>
+        <span className="key"><kbd>⇧↵</kbd>background</span>
+        <span className="key"><kbd>⇥</kbd>complete</span>
+        <span className="spacer" />
+        <a href="#" onClick={openOptions}><Gear size={13} strokeWidth={1.9} />Manage <kbd>{MOD},</kbd></a>
       </div>
     </div>
   );
@@ -199,7 +205,7 @@ function Status({ resolution, runError, hasArgs, onSuggestion }: StatusProps) {
   if (resolution.ok) {
     return (
       <div className="status preview">
-        <span className="dot" />
+        <ArrowRight size={12} />
         <span className="url">{resolution.url}</span>
       </div>
     );

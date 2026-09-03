@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { exportCommands, mergeImport, parseImport, type Command, type CommandDraft, type ConflictStrategy } from "../core";
+import { Download, Upload } from "../shared/icons";
 
 type Props = {
   commands: readonly Command[];
@@ -42,6 +43,11 @@ export function ImportExport({ commands, onImport }: Props) {
     setPending({ name: file.name, commands: parsed.commands, rejected: parsed.rejected });
   };
 
+  const reset = () => {
+    setPending(null);
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
   const confirm = async () => {
     if (!pending) return;
     const r = mergeImport(commands, pending.commands, strategy);
@@ -50,34 +56,35 @@ export function ImportExport({ commands, onImport }: Props) {
     if (r.replaced) parts.push(`${r.replaced} replaced`);
     if (r.skipped) parts.push(`${r.skipped} skipped`);
     setNotice(`Imported ${pending.name}: ${parts.join(", ")}.`);
-    setPending(null);
-    if (fileRef.current) fileRef.current.value = "";
+    reset();
   };
 
   const conflicts = pending ? pending.commands.filter((d) => commands.some((c) => c.keyword === d.keyword)).length : 0;
 
   return (
-    <section className="card io">
-      <div className="io-row">
-        <div>
-          <h2>Import / export</h2>
-          <p className="muted">Plain JSON. Back up your commands or share a set with a teammate.</p>
-        </div>
-        <div className="io-actions">
-          <button onClick={download} disabled={commands.length === 0}>Export {commands.length > 0 ? `${commands.length} ` : ""}to JSON</button>
-          <button onClick={() => fileRef.current?.click()}>Import JSON…</button>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="application/json,.json"
-            hidden
-            onChange={(e) => void pick(e.target.files?.[0])}
-          />
-        </div>
-      </div>
+    <>
+      <footer className="foot">
+        <span className="note">Plain JSON — back up or share a set.</span>
+        <span className="spacer" />
+        <button className="btn" onClick={download} disabled={commands.length === 0}>
+          <Download size={14} strokeWidth={1.9} />
+          Export{commands.length > 0 ? ` ${commands.length}` : ""}
+        </button>
+        <button className="btn" onClick={() => fileRef.current?.click()}>
+          <Upload size={14} strokeWidth={1.9} />
+          Import
+        </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="application/json,.json"
+          hidden
+          onChange={(e) => void pick(e.target.files?.[0])}
+        />
+      </footer>
 
-      {error && <p className="err">{error}</p>}
-      {notice && <p className="ok">{notice}</p>}
+      {error && <p className="io-msg err">{error}</p>}
+      {notice && <p className="io-msg ok">{notice}</p>}
 
       {pending && (
         <div className="io-confirm">
@@ -95,11 +102,11 @@ export function ImportExport({ commands, onImport }: Props) {
             </div>
           )}
           <div className="io-actions">
-            <button onClick={() => { setPending(null); if (fileRef.current) fileRef.current.value = ""; }}>Cancel</button>
-            <button className="primary" onClick={() => void confirm()}>Import</button>
+            <button className="btn" onClick={reset}>Cancel</button>
+            <button className="btn primary" onClick={() => void confirm()}>Import</button>
           </div>
         </div>
       )}
-    </section>
+    </>
   );
 }

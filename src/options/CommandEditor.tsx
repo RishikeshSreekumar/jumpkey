@@ -3,13 +3,12 @@ import {
   normalizeDraft,
   parseAliases,
   parseTemplate,
-  renderTemplate,
   validateDraft,
   OPEN_MODES,
   type Command,
   type CommandDraft,
-  type OpenMode,
 } from "../core";
+import { Check, Close, Info, OPEN_MODE_LABELS, OpenModeIcon, Pencil, Plus } from "../shared/icons";
 
 type Props = {
   initial?: Command;
@@ -18,7 +17,7 @@ type Props = {
   onCancel: () => void;
 };
 
-const LABELS: Record<OpenMode, string> = { "current-tab": "Current tab", "foreground-tab": "New tab" };
+const MOD = navigator.platform.toLowerCase().includes("mac") ? "⌘" : "Ctrl";
 
 /** Editor state: like CommandDraft but aliases stay a raw string while typing. */
 type Fields = Omit<CommandDraft, "aliases"> & { aliases: string };
@@ -32,7 +31,6 @@ export function CommandEditor({ initial, existing, onSave, onCancel }: Props) {
     aliases: (initial?.aliases ?? []).join(", "),
   });
   const [touched, setTouched] = useState(false);
-  const [sample, setSample] = useState<Record<string, string>>({});
 
   const normalized = useMemo(() => normalizeDraft({ ...draft, aliases: parseAliases(draft.aliases) }), [draft]);
   const validation = useMemo(() => validateDraft(normalized, existing, initial?.id), [normalized, existing, initial?.id]);
@@ -41,120 +39,118 @@ export function CommandEditor({ initial, existing, onSave, onCancel }: Props) {
   const hasErrors = Object.keys(validation.errors).length > 0;
   const show = (field: keyof CommandDraft) => (touched ? validation.errors[field] : undefined);
 
-  const preview = useMemo(() => {
-    if (!parsed.ok || normalized.template === "") return null;
-    const values = Object.fromEntries(variables.map((v) => [v, sample[v]?.trim() || v.toUpperCase()]));
-    const r = renderTemplate(normalized.template, values);
-    return r.ok ? r.url : null;
-  }, [parsed.ok, normalized.template, variables, sample]);
-
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const submit = (e?: React.FormEvent) => {
+    e?.preventDefault();
     setTouched(true);
     if (hasErrors) return;
     void onSave(normalized);
   };
 
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      submit();
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      onCancel();
+    }
+  };
+
   const set = <K extends keyof Fields>(k: K, v: Fields[K]) => setDraft((d) => ({ ...d, [k]: v }));
 
+  const usage = [normalized.keyword || "keyword", ...variables.map((v) => `<${v}>`)].join(" ");
+
   return (
-    <form className="editor" onSubmit={submit}>
-      <div className="grid-2">
-        <label>
-          <span>Keyword</span>
-          <input value={draft.keyword} onChange={(e) => set("keyword", e.target.value)} placeholder="wf" autoFocus spellCheck={false} className="mono" />
-          <small className="muted">Lowercase, no spaces. What you type first.</small>
-          {show("keyword") && <em className="err">{show("keyword")}</em>}
-        </label>
-
-        <label>
-          <span>Name</span>
-          <input value={draft.name} onChange={(e) => set("name", e.target.value)} placeholder="Workflow" />
-          <small className="muted">Shown in the launcher list. Searchable too.</small>
-          {show("name") && <em className="err">{show("name")}</em>}
-        </label>
+    <form className="card editor" onSubmit={submit} onKeyDown={onKeyDown}>
+      <div className="editor-head">
+        {initial ? <Pencil size={15} /> : <Plus size={15} />}
+        <h2>{initial ? "Edit command" : "New command"}</h2>
+        <span className="spacer" />
+        <button type="button" className="ibtn" title="Close" onClick={onCancel}>
+          <Close size={14} />
+        </button>
       </div>
 
-      <label>
-        <span>URL template</span>
-        <input
-          value={draft.template}
-          onChange={(e) => set("template", e.target.value)}
-          placeholder="https://example.com/workflow/{id}"
-          spellCheck={false}
-          className="mono"
-        />
-        <small className="muted">
-          Wrap variables in braces: <code>{"{id}"}</code>. Each becomes a positional argument, in order. Path arguments may contain <code>/</code>.
-        </small>
-        {show("template") && <em className="err">{show("template")}</em>}
-        {!show("template") && validation.warnings.map((w) => <em key={w} className="warn">{w}</em>)}
-      </label>
-
-      <section className="panel">
-        <div className="panel-head">
-          <span>Arguments</span>
-          {normalized.keyword && (
-            <code className="usage-line">{[normalized.keyword, ...variables.map((v) => `<${v}>`)].join(" ")}</code>
-          )}
+      <div className="editor-body">
+        <div className="grid-kw">
+          <div className="field">
+            <label htmlFor="ed-keyword">Keyword</label>
+            <input id="ed-keyword" className="keyword" value={draft.keyword} onChange={(e) => set("keyword", e.target.value)} placeholder="wf" autoFocus spellCheck={false} />
+            {show("keyword") && <em className="err">{show("keyword")}</em>}
+          </div>
+          <div className="field">
+            <label htmlFor="ed-name">Name</label>
+            <input id="ed-name" className="name" value={draft.name} onChange={(e) => set("name", e.target.value)} placeholder="Workflow" />
+            {show("name") && <em className="err">{show("name")}</em>}
+          </div>
         </div>
-        {variables.length === 0 ? (
-          <p className="muted">No variables detected. Add <code>{"{name}"}</code> to the template to accept arguments.</p>
+
+        <div className="field">
+          <label htmlFor="ed-template">URL template</label>
+          <input
+            id="ed-template"
+            className="mono"
+            value={draft.template}
+            onChange={(e) => set("template", e.target.value)}
+            placeholder="https://example.com/workflow/{id}"
+            spellCheck={false}
+          />
+          <span className="help">
+            <Info size={13} strokeWidth={1.9} />
+            Wrap each variable in braces — they become positional arguments.
+          </span>
+          {show("template") && <em className="err">{show("template")}</em>}
+          {!show("template") && validation.warnings.map((w) => <em key={w} className="warn">{w}</em>)}
+        </div>
+
+        {variables.length > 0 ? (
+          <div className="argbox">
+            <Check size={14} strokeWidth={2.2} />
+            <span>{variables.length} argument{variables.length === 1 ? "" : "s"} detected:</span>
+            {variables.map((v) => <span key={v} className="var">{v}</span>)}
+            <span className="usage">{usage}</span>
+          </div>
         ) : (
-          <ol className="args">
-            {variables.map((v, i) => (
-              <li key={v}>
-                <span className="arg-index">{i + 1}</span>
-                <code className="arg-name">{v}</code>
-                <input
-                  value={sample[v] ?? ""}
-                  onChange={(e) => setSample((s) => ({ ...s, [v]: e.target.value }))}
-                  placeholder="sample value"
-                  className="mono small-input"
-                  spellCheck={false}
-                />
-              </li>
-            ))}
-          </ol>
-        )}
-        {preview && (
-          <div className="preview">
-            <span className="muted">Preview</span>
-            <code>{preview}</code>
+          <div className="argbox none">
+            <Info size={14} strokeWidth={1.9} />
+            <span>No arguments. Add <code>{"{name}"}</code> to the template to accept one.</span>
           </div>
         )}
-      </section>
 
-      <div className="grid-2">
-        <label>
-          <span>Aliases <span className="muted optional">optional</span></span>
-          <input value={draft.aliases} onChange={(e) => set("aliases", e.target.value)} placeholder="workflow, flow" spellCheck={false} className="mono" />
-          <small className="muted">Other keywords that run this command. Comma-separated.</small>
-          {show("aliases") && <em className="err">{show("aliases")}</em>}
-        </label>
-
-        <label>
-          <span>Open in</span>
-          <div className="segmented">
-            {OPEN_MODES.map((m) => (
-              <button
-                type="button"
-                key={m}
-                className={draft.openMode === m ? "on" : undefined}
-                onClick={() => set("openMode", m)}
-              >
-                {LABELS[m]}
-              </button>
-            ))}
+        <div className="grid-2">
+          <div className="field">
+            <label htmlFor="ed-aliases">Aliases <span className="optional">optional</span></label>
+            <input id="ed-aliases" className="mono" value={draft.aliases} onChange={(e) => set("aliases", e.target.value)} placeholder="workflow, flow" spellCheck={false} />
+            {show("aliases") && <em className="err">{show("aliases")}</em>}
           </div>
-          <small className="muted">In the launcher, ⌘/Ctrl+Enter forces a new tab, Shift+Enter a background tab.</small>
-        </label>
+          <div className="field">
+            <label>Opens in</label>
+            <div className="segmented" role="radiogroup">
+              {OPEN_MODES.map((m) => (
+                <button
+                  type="button"
+                  key={m}
+                  role="radio"
+                  aria-checked={draft.openMode === m}
+                  className={draft.openMode === m ? "on" : undefined}
+                  onClick={() => set("openMode", m)}
+                >
+                  <OpenModeIcon mode={m} size={13} />
+                  {OPEN_MODE_LABELS[m]}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="actions">
-        <button type="button" onClick={onCancel}>Cancel</button>
-        <button type="submit" className="primary" disabled={touched && hasErrors}>
-          {initial ? "Save changes" : "Create command"}
+      <div className="editor-foot">
+        <span className="save-hint">{MOD}↵ to save</span>
+        <span className="spacer" />
+        <button type="button" className="btn" onClick={onCancel}>Cancel</button>
+        <button type="submit" className="btn primary" disabled={touched && hasErrors}>
+          <Check size={13} strokeWidth={2.2} />
+          Save command
         </button>
       </div>
     </form>
