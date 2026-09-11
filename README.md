@@ -38,14 +38,18 @@ Arguments are space-separated and fill template variables in order. Wrap an argu
 
 To turn the page you are on into a command, press **Cmd+S** (Ctrl+S) in the launcher or click **Add page**. The manage page opens with the URL prefilled and ID-like parts (UUIDs, numbers, hashes) already turned into variables. Under the template, the URL is shown as clickable parts: click a part to make it a variable, edit its name in place, or × it back to a literal. The same picker appears whenever a plain URL is typed or pasted into the template field. Reading the tab URL uses the `activeTab` permission, granted only while the popup is open.
 
+**Clipboard suggestions** (off by default, Settings on the manage page): when the launcher opens it reads the clipboard once and, if the text looks like a single value, offers it for the next argument. Tab fills it, Enter fills and opens. Turning it on requests the optional `clipboardRead` permission.
+
+**Right-click menu** (on by default): select text on any page, right-click, "Open with JumpKey" lists every command with exactly one variable. The selection becomes the argument.
+
 Commands can have aliases (extra keywords). The manage page exports all commands to JSON and imports a JSON file, with a choice to keep or replace commands whose keyword already exists.
 
-Usage is tracked locally as command id → last used time (no arguments), stored under a separate key from the commands.
+Usage is tracked locally as command id → last used time (no arguments), stored under a separate key from the commands. Preferences live under their own key too.
 
 ## Layout
 
 - `src/core/` — browser-independent engine: template parsing/rendering, invocation parsing, matching, validation, deriving a template from a URL. No `chrome` imports (enforced by ESLint).
 - `src/storage/` — `StoreRepository` over `chrome.storage.local`, schema migrations, dev seed.
 - `src/popup/` — the Launcher.
-- `src/background/` — service worker; registers the `jk` omnibox keyword and reuses the core engine.
+- `src/background/` — service worker; registers the `jk` omnibox keyword and the context menu, reuses the core engine.
 - `src/options/` — command list and editor.

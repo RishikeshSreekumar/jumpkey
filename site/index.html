@@ -147,7 +147,7 @@
     .step .ex .m { color: var(--ink-4); }
 
     /* Features */
-    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 16px; }
     .feat { background: var(--sheet); border: 1px solid var(--rule); border-radius: 14px; padding: 22px; }
     .feat .ico { width: 34px; height: 34px; border-radius: 9px; background: var(--accent-wash); border: 1px solid var(--accent-rule); color: var(--accent); display: grid; place-items: center; margin-bottom: 14px; }
     .feat h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
@@ -195,7 +195,7 @@
 
     @media (max-width: 860px) {
       .hero { grid-template-columns: 1fr; gap: 40px; padding: 32px 0 56px; }
-      .steps, .features { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; }
       .install { grid-template-columns: 1fr; }
       .dl-card { position: static; }
       .nav .hide-sm { display: none; }
@@ -229,7 +229,7 @@
 
     <header class="hero">
       <div>
-        <span class="eyebrow"><span class="dot"></span> Chrome extension · <span data-version>v0.0.1</span></span>
+        <span class="eyebrow"><span class="dot"></span> Chrome extension · <span data-version>v0.1.0</span></span>
         <h1>A command palette for <em>parameterized</em> URLs.</h1>
         <p class="lede">Type <code>wf 7f4c2a</code>, land on <code>joinmando.com/workflow/7f4c2a</code>. JumpKey turns the URL patterns you visit every day into short keyboard commands. Local-first, keyboard-first, no account, no backend.</p>
         <div class="cta">
@@ -345,6 +345,16 @@
           <p>One keystroke turns the current tab into a Command. UUIDs, numbers and hashes become variables automatically; click any other part to make it one.</p>
         </div>
         <div class="feat">
+          <div class="ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="5" width="12" height="16" rx="2"/><path d="M9 5a3 3 0 0 1 6 0"/><path d="M9 12h6M9 16h4"/></svg></div>
+          <h3>Clipboard suggestions</h3>
+          <p>Copy an ID, open the launcher, type the keyword. JumpKey offers what you copied as the argument: Tab fills it, Enter opens it. Opt-in, read only while the launcher is open.</p>
+        </div>
+        <div class="feat">
+          <div class="ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M8 9h8M8 12.5h5M8 16h6"/></svg></div>
+          <h3>Right-click any ID</h3>
+          <p>Select text on a page, right-click, “Open with JumpKey”. Every command that takes one argument is listed. Works in Slack, GitHub, admin panels, email.</p>
+        </div>
+        <div class="feat">
           <div class="ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h2M16 4h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-2"/><path d="M12 9v6"/></svg></div>
           <h3>Real templates</h3>
           <p>Any number of variables, anywhere in the URL: host, path, query or hash. Quote an argument to keep spaces inside it. Aliases give a Command extra keywords.</p>
@@ -352,7 +362,7 @@
         <div class="feat">
           <div class="ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
           <h3>Local-first, minimal permissions</h3>
-          <p>Commands live in <code>chrome.storage.local</code>. Only two permissions: <code>storage</code>, and <code>activeTab</code> while the popup is open. No host access, no network, no account.</p>
+          <p>Commands live in <code>chrome.storage.local</code>. Permissions: <code>storage</code>, <code>contextMenus</code>, and <code>activeTab</code> while the popup is open. Clipboard access is optional and asked for only when you turn it on. No host access, no network, no account.</p>
         </div>
         <div class="feat">
           <div class="ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0 4-4m-4 4-4-4"/><path d="M5 19h14"/></svg></div>
@@ -380,6 +390,7 @@
             <li>Turn on <b>Developer mode</b> using the toggle in the top-right corner.</li>
             <li>Click <b>Load unpacked</b> and pick the unzipped <code>jumpkey</code> folder.</li>
             <li>Press <b><kbd>⌘</kbd><kbd>⇧</kbd><kbd>K</kbd></b> (<kbd>Ctrl</kbd><kbd>⇧</kbd><kbd>K</kbd> on Windows and Linux) to open the launcher. Click <b>Add page</b> or <b>Manage</b> to create your first Command.</li>
+            <li>Optional: on the manage page, under <b>Settings</b>, turn on <b>Clipboard suggestions</b>. Chrome asks once for clipboard permission.</li>
           </ol>
           <div class="callout">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-9.5v.5"/></svg>
@@ -389,9 +400,9 @@
         <aside class="dl-card">
           <h3>JumpKey for Chrome</h3>
           <div class="meta">
-            <span class="pill" data-version>v0.0.1</span>
+            <span class="pill" data-version>v0.1.0</span>
             <span class="pill">Manifest V3</span>
-            <span class="pill ok">storage · activeTab only</span>
+            <span class="pill ok">storage · activeTab · contextMenus</span>
           </div>
           <a class="btn accent lg" href="jumpkey.zip" download>
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0 4-4m-4 4-4-4"/><path d="M5 19h14"/></svg>
@@ -416,7 +427,9 @@
             <tr><td class="keys"><kbd>↵</kbd></td><td>Open with the Command's default open mode <span class="where">Launcher. With nothing after the keyword, completes the highlighted Command instead.</span></td></tr>
             <tr><td class="keys"><kbd>⌘</kbd><kbd>↵</kbd></td><td>Open in a new foreground tab <span class="where">Launcher</span></td></tr>
             <tr><td class="keys"><kbd>⇧</kbd><kbd>↵</kbd></td><td>Open in a background tab <span class="where">Launcher. In the address bar, opens a new tab.</span></td></tr>
-            <tr><td class="keys"><kbd>⇥</kbd></td><td>Complete the highlighted Command's keyword <span class="where">Launcher</span></td></tr>
+            <tr><td class="keys"><kbd>⇥</kbd></td><td>Complete the highlighted Command's keyword <span class="where">Launcher. When a clipboard suggestion is showing, fills it instead.</span></td></tr>
+            <tr><td class="keys"><kbd>↵</kbd> on a clipboard suggestion</td><td>Fill the argument from the clipboard and open <span class="where">Launcher. Needs clipboard suggestions turned on in Settings.</span></td></tr>
+            <tr><td class="keys">Right-click</td><td>“Open with JumpKey” → pick a Command; the selected text is the argument <span class="where">Any page, with text selected.</span></td></tr>
             <tr><td class="keys"><kbd>↑</kbd> <kbd>↓</kbd></td><td>Move through matching Commands <span class="where">Launcher. With nothing typed, ordered by most recent use.</span></td></tr>
             <tr><td class="keys"><kbd>⌘</kbd><kbd>S</kbd></td><td>Add the current page as a Command <span class="where">Launcher</span></td></tr>
             <tr><td class="keys"><kbd>⌘</kbd><kbd>,</kbd></td><td>Open the manage page <span class="where">Launcher</span></td></tr>
@@ -435,7 +448,7 @@
           </span>
           JumpKey
         </span>
-        <span class="pill" data-version>v0.0.1</span>
+        <span class="pill" data-version>v0.1.0</span>
         <span class="spacer"></span>
         <a href="https://github.com/RishikeshSreekumar/jumpkey" target="_blank" rel="noopener">GitHub</a>
         <a href="https://github.com/RishikeshSreekumar/jumpkey/issues" target="_blank" rel="noopener">Report an issue</a>

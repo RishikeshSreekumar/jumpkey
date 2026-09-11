@@ -22,3 +22,13 @@ export type CommandDraft = Pick<Command, "keyword" | "name" | "template" | "open
 
 /** Local-only usage metadata: Command id → last invocation time. Never holds argument values. */
 export type Usage = Record<string, number>;
+
+/** User-facing toggles. Stored under their own key, separate from Commands. */
+export type Preferences = {
+  /** Offer the clipboard's contents as the next Argument in the Launcher. Needs the optional `clipboardRead` permission. */
+  clipboardSuggestions: boolean;
+  /** "Open with JumpKey" submenu on selected text, for Commands with exactly one Variable. */
+  contextMenu: boolean;
+};
+
+export const DEFAULT_PREFERENCES: Preferences = { clipboardSuggestions: false, contextMenu: true };

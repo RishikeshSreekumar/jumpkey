@@ -3,6 +3,7 @@ import {
   filterCommands,
   parseInvocation,
   resolveInvocation,
+  shortValue,
   variablesOf,
   type Command,
   type NavTarget,
@@ -11,16 +12,18 @@ import {
 import { useStore } from "../storage/useStore";
 import { navigate } from "./navigate";
 import { addCurrentPage } from "./addPage";
+import { readClipboardArgument } from "./clipboard";
 import { Logo } from "../shared/Logo";
-import { ArrowRight, Gear, OpenModeIcon, Plus } from "../shared/icons";
+import { ArrowRight, Clipboard, Gear, OpenModeIcon, Plus } from "../shared/icons";
 
 const MOD = navigator.platform.toLowerCase().includes("mac") ? "⌘" : "Ctrl";
 
 export function Launcher() {
-  const { store, usage, touch } = useStore();
+  const { store, usage, prefs, touch } = useStore();
   const [input, setInput] = useState("");
   const [selected, setSelected] = useState(0);
   const [runError, setRunError] = useState<string | null>(null);
+  const [clip, setClip] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const commands = store?.commands ?? [];
@@ -32,22 +35,46 @@ export function Launcher() {
 
   useEffect(() => inputRef.current?.focus(), [store]);
   useEffect(() => setSelected(0), [input]);
+  // Read the clipboard once per opening, and only when the user opted in.
+  useEffect(() => {
+    if (!prefs.clipboardSuggestions) return;
+    let cancelled = false;
+    void readClipboardArgument().then((v) => { if (!cancelled) setClip(v); });
+    return () => { cancelled = true; };
+  }, [prefs.clipboardSuggestions]);
+
+  // Offer the clipboard for the next unfilled Variable of the active Command.
+  const clipSuggestion =
+    clip && !resolution.ok && resolution.kind === "missing-argument" && !invocation.args.includes(clip) ? clip : null;
 
   const insertKeyword = (c: Command) => {
     setInput(`${c.keyword} `);
     inputRef.current?.focus();
   };
 
-  const run = async (override?: NavTarget) => {
-    if (!resolution.ok) return;
-    const target = override ?? resolution.command.openMode;
+  const run = async (override?: NavTarget, res: Resolution = resolution) => {
+    if (!res.ok) return;
+    const target = override ?? res.command.openMode;
     try {
       // Record usage first: navigate() closes the popup, which would abort a later write.
-      await touch(resolution.command.id);
-      await navigate(resolution.url, target);
+      await touch(res.command.id);
+      await navigate(res.url, target);
     } catch (e) {
       setRunError(e instanceof Error ? e.message : String(e));
     }
+  };
+
+  const quote = (a: string) => (/\s/.test(a) ? `"${a}"` : a);
+
+  /** Fill the next Variable from the clipboard. With `go`, navigate if that completes the Invocation. */
+  const applyClip = (go: boolean) => {
+    if (!clipSuggestion || !active) return;
+    const args = [...invocation.args, clipSuggestion];
+    const text = [invocation.keyword, ...args.map(quote)].join(" ");
+    const complete = args.length >= variablesOf(active).length;
+    setInput(complete ? text : text + " ");
+    inputRef.current?.focus();
+    if (go && complete) void run(undefined, resolveInvocation(text, commands));
   };
 
   const addPage = async () => {
@@ -68,12 +95,20 @@ export function Launcher() {
       case "Tab": {
         // Focus always stays in the input; Tab only ever completes.
         e.preventDefault();
+        if (clipSuggestion) {
+          applyClip(false);
+          break;
+        }
         const c = list[selected];
         if (c && !hasArgs) insertKeyword(c);
         break;
       }
       case "Enter": {
         e.preventDefault();
+        if (clipSuggestion) {
+          applyClip(true);
+          break;
+        }
         const c = list[selected];
         if (!hasArgs && c && !(resolution.ok && resolution.command.id === c.id)) {
           insertKeyword(c);
@@ -142,7 +177,7 @@ export function Launcher() {
       </div>
 
       {active && <ArgumentTrail command={active} args={invocation.args} />}
-      <Status resolution={resolution} runError={runError} hasArgs={hasArgs} onSuggestion={useSuggestion} />
+      <Status resolution={resolution} runError={runError} hasArgs={hasArgs} onSuggestion={useSuggestion} clip={clipSuggestion} onClip={() => applyClip(true)} />
 
       {!hasArgs && (
         <ul className="list" role="listbox">
@@ -216,9 +251,11 @@ type StatusProps = {
   runError: string | null;
   hasArgs: boolean;
   onSuggestion: (keyword: string) => void;
+  clip: string | null;
+  onClip: () => void;
 };
 
-function Status({ resolution, runError, hasArgs, onSuggestion }: StatusProps) {
+function Status({ resolution, runError, hasArgs, onSuggestion, clip, onClip }: StatusProps) {
   if (runError) return <div className="status error">{runError}</div>;
   if (resolution.ok) {
     return (
@@ -248,6 +285,16 @@ function Status({ resolution, runError, hasArgs, onSuggestion }: StatusProps) {
         </div>
       );
     case "missing-argument":
+      if (clip) {
+        return (
+          <button type="button" className="status clip" onClick={onClip} title={clip} tabIndex={-1}>
+            <Clipboard size={13} strokeWidth={1.9} />
+            <span>{resolution.message} — use clipboard</span>
+            <code>{shortValue(clip)}</code>
+            <span className="keys"><kbd>⇥</kbd> fill <kbd>↵</kbd> go</span>
+          </button>
+        );
+      }
       return <div className="status hint">{resolution.message} — press space and type it</div>;
     case "too-many-arguments":
       return <div className="status error">{resolution.message} Wrap spaces in quotes: <code>"a b"</code></div>;

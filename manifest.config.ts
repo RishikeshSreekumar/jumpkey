@@ -4,8 +4,9 @@ export default defineManifest({
   manifest_version: 3,
   name: "JumpKey",
   description: "A command palette for parameterized URLs.",
-  version: "0.0.1",
-  permissions: ["storage", "activeTab"],
+  version: "0.1.0",
+  permissions: ["storage", "activeTab", "contextMenus"],
+  optional_permissions: ["clipboardRead"],
   icons: {
     16: "icons/icon-16.png",
     32: "icons/icon-32.png",

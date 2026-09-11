@@ -46,3 +46,11 @@ _Avoid_: Segment, part, chip (chip is the UI rendering of a Slot)
 
 **Shortcut**:
 Reserved for keyboard shortcuts only (e.g. the global shortcut that opens the Launcher). Never a synonym for Command.
+
+**Preference**:
+A user toggle stored separately from Commands (clipboard suggestions, context menu).
+_Avoid_: Setting, option, flag (in prose; "Settings" is the card title only)
+
+**Clipboard suggestion**:
+The Launcher offering the clipboard's contents as the next Argument. Opt-in.
+_Avoid_: Paste, autofill, clipboard integration

@@ -1,6 +1,8 @@
 import { registerOmnibox } from "./omnibox";
+import { registerContextMenu } from "./contextMenu";
 
 registerOmnibox();
+registerContextMenu();
 
 chrome.commands.onCommand.addListener((command) => {
   if (command === "open-options") void chrome.runtime.openOptionsPage();

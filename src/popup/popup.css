@@ -47,6 +47,15 @@ body { background: var(--sheet); }
 .status .url { flex: 1; min-width: 0; }
 .status code { background: var(--sheet); padding: 0 4px; border-radius: 3px; }
 .status .suggest { color: inherit; font-family: var(--mono); font-weight: 600; text-decoration: underline; }
+.status.clip {
+  width: calc(100% - 28px); font: inherit; text-align: left; cursor: pointer;
+  background: var(--paper-2); border: 1px dashed var(--accent-rule); color: var(--ink-2); transition: background 0.12s, border-color 0.12s;
+}
+.status.clip:hover { background: var(--accent-wash); border-color: var(--accent); }
+.status.clip svg { flex: none; color: var(--accent); }
+.status.clip code { background: var(--sheet); border: 1px solid var(--rule-2); color: var(--accent-ink); padding: 1px 5px; border-radius: 4px; white-space: nowrap; }
+.status.clip .keys { margin-left: auto; flex: none; font-size: 11px; color: var(--ink-4); white-space: nowrap; }
+.status.clip kbd { font-size: 10.5px; padding: 0 4px; }
 
 /* Command list */
 .list { list-style: none; margin: 0; padding: 6px; max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; }

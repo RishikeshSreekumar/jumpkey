@@ -42,6 +42,12 @@ export const Info = (p: IconProps) => <Svg {...p}><circle cx="12" cy="12" r="9" 
 export const Gear = (p: IconProps) => (
   <Svg {...p}><circle cx="12" cy="12" r="3" /><path d="M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6l1.4 1.4m10 10 1.4 1.4m0-12.8-1.4 1.4m-10 10L5.6 18.4" /></Svg>
 );
+export const Clipboard = (p: IconProps) => (
+  <Svg {...p}><rect x="6" y="5" width="12" height="16" rx="2" /><path d="M9 5a3 3 0 0 1 6 0" /><path d="M9 12h6M9 16h4" /></Svg>
+);
+export const MenuIcon = (p: IconProps) => (
+  <Svg {...p}><rect x="4" y="4" width="16" height="16" rx="2.5" /><path d="M8 9h8M8 12.5h5M8 16h6" /></Svg>
+);
 export const Download = (p: IconProps) => <Svg {...p}><path d="M12 4v11m0 0 4-4m-4 4-4-4" /><path d="M5 19h14" /></Svg>;
 export const Upload = (p: IconProps) => <Svg {...p}><path d="M12 15V4m0 0-4 4m4-4 4 4" /><path d="M5 19h14" /></Svg>;
 export const Keyboard = (p: IconProps) => (

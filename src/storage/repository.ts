@@ -1,4 +1,4 @@
-import type { Usage } from "../core";
+import type { Preferences, Usage } from "../core";
 import type { Store } from "./schema";
 
 export interface StoreRepository {
@@ -13,4 +13,9 @@ export interface StoreRepository {
    */
   loadUsage(): Promise<Usage>;
   touchUsage(commandId: string): Promise<void>;
+
+  /** Preferences also live under their own key; missing fields fall back to defaults. */
+  loadPreferences(): Promise<Preferences>;
+  savePreferences(prefs: Preferences): Promise<void>;
+  subscribePreferences(listener: (prefs: Preferences) => void): () => void;
 }

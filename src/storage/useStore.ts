@@ -1,19 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { Usage } from "../core";
+import { DEFAULT_PREFERENCES, type Preferences, type Usage } from "../core";
 import { ChromeLocalRepository } from "./chrome-local";
 import type { Store } from "./schema";
 import { devSeed, shouldSeed } from "./seed";
 
-/** Shared hook: loads the Store and Usage once, tracks cross-context writes, exposes save/touch. */
+/** Shared hook: loads Store, Usage and Preferences once, tracks cross-context writes, exposes save/touch/savePrefs. */
 export function useStore() {
   const repo = useMemo(() => new ChromeLocalRepository(), []);
   const [store, setStore] = useState<Store | null>(null);
   const [usage, setUsage] = useState<Usage>({});
+  const [prefs, setPrefs] = useState<Preferences>(DEFAULT_PREFERENCES);
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const [loaded, u] = await Promise.all([repo.load(), repo.loadUsage()]);
+      const [loaded, u, p] = await Promise.all([repo.load(), repo.loadUsage(), repo.loadPreferences()]);
       if (cancelled) return;
       let s = loaded;
       if (s.commands.length === 0 && (await shouldSeed())) {
@@ -22,11 +23,14 @@ export function useStore() {
       }
       setStore(s);
       setUsage(u);
+      setPrefs(p);
     })();
     const unsub = repo.subscribe((s) => setStore(s));
+    const unsubPrefs = repo.subscribePreferences((p) => setPrefs(p));
     return () => {
       cancelled = true;
       unsub();
+      unsubPrefs();
     };
   }, [repo]);
 
@@ -46,5 +50,13 @@ export function useStore() {
     [repo],
   );
 
-  return { store, usage, save, touch };
+  const savePrefs = useCallback(
+    async (next: Preferences) => {
+      setPrefs(next);
+      await repo.savePreferences(next);
+    },
+    [repo],
+  );
+
+  return { store, usage, prefs, save, touch, savePrefs };
 }

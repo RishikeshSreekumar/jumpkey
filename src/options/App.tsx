@@ -3,6 +3,7 @@ import { variablesOf, type Command, type CommandDraft } from "../core";
 import { useStore } from "../storage/useStore";
 import { CommandEditor, type PageSeed } from "./CommandEditor";
 import { ImportExport } from "./ImportExport";
+import { Settings } from "./Settings";
 import { Logo } from "../shared/Logo";
 import {
   AddressBar,
@@ -37,7 +38,7 @@ const MOD = navigator.platform.toLowerCase().includes("mac") ? "⌘" : "Ctrl";
 const displayUrl = (template: string) => template.replace(/^https?:\/\//, "");
 
 export function App() {
-  const { store, save } = useStore();
+  const { store, prefs, save, savePrefs } = useStore();
   const [mode, setMode] = useState<Mode>(initialMode);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -194,6 +195,8 @@ export function App() {
 
           <ImportExport commands={commands} onImport={(next) => save({ ...store, commands: next })} />
         </div>
+
+        <Settings prefs={prefs} onChange={savePrefs} />
       </div>
 
       {mode.kind !== "list" && (

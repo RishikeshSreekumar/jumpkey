@@ -1,9 +1,10 @@
-import type { Usage } from "../core";
+import { DEFAULT_PREFERENCES, type Preferences, type Usage } from "../core";
 import { migrate, type Store } from "./schema";
 import type { StoreRepository } from "./repository";
 
 const KEY = "store";
 const USAGE_KEY = "usage";
+const PREFS_KEY = "prefs";
 
 function asUsage(raw: unknown): Usage {
   if (!raw || typeof raw !== "object") return {};
@@ -12,6 +13,12 @@ function asUsage(raw: unknown): Usage {
     if (typeof v === "number") out[k] = v;
   }
   return out;
+}
+
+function asPreferences(raw: unknown): Preferences {
+  const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+  const bool = (k: keyof Preferences) => (typeof r[k] === "boolean" ? (r[k] as boolean) : DEFAULT_PREFERENCES[k]);
+  return { clipboardSuggestions: bool("clipboardSuggestions"), contextMenu: bool("contextMenu") };
 }
 
 export class ChromeLocalRepository implements StoreRepository {
@@ -41,5 +48,22 @@ export class ChromeLocalRepository implements StoreRepository {
     const usage = await this.loadUsage();
     usage[commandId] = Date.now();
     await chrome.storage.local.set({ [USAGE_KEY]: usage });
+  }
+
+  async loadPreferences(): Promise<Preferences> {
+    const result = await chrome.storage.local.get(PREFS_KEY);
+    return asPreferences(result[PREFS_KEY]);
+  }
+
+  async savePreferences(prefs: Preferences): Promise<void> {
+    await chrome.storage.local.set({ [PREFS_KEY]: prefs });
+  }
+
+  subscribePreferences(listener: (prefs: Preferences) => void): () => void {
+    const handler = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
+      if (area === "local" && changes[PREFS_KEY]) listener(asPreferences(changes[PREFS_KEY].newValue));
+    };
+    chrome.storage.onChanged.addListener(handler);
+    return () => chrome.storage.onChanged.removeListener(handler);
   }
 }
