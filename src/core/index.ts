@@ -5,3 +5,4 @@ export * from "./matcher";
 export * from "./validation";
 export * from "./engine";
 export * from "./portable";
+export * from "./fromUrl";

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { variablesOf, type Command, type CommandDraft } from "../core";
 import { useStore } from "../storage/useStore";
-import { CommandEditor } from "./CommandEditor";
+import { CommandEditor, type PageSeed } from "./CommandEditor";
 import { ImportExport } from "./ImportExport";
 import { Logo } from "../shared/Logo";
 import {
@@ -19,7 +19,17 @@ import {
   Trash,
 } from "../shared/icons";
 
-type Mode = { kind: "list" } | { kind: "new" } | { kind: "edit"; id: string };
+type Mode = { kind: "list" } | { kind: "new"; fromPage?: PageSeed } | { kind: "edit"; id: string };
+
+/** The Launcher opens this page with `?from=<url>&title=<title>` to start a Command from the current page. */
+function initialMode(): Mode {
+  const params = new URLSearchParams(location.search);
+  const url = params.get("from");
+  if (!url) return { kind: "list" };
+  history.replaceState(null, "", location.pathname);
+  const title = params.get("title");
+  return { kind: "new", fromPage: { url, ...(title ? { title } : {}) } };
+}
 
 const MOD = navigator.platform.toLowerCase().includes("mac") ? "⌘" : "Ctrl";
 
@@ -28,7 +38,7 @@ const displayUrl = (template: string) => template.replace(/^https?:\/\//, "");
 
 export function App() {
   const { store, save } = useStore();
-  const [mode, setMode] = useState<Mode>({ kind: "list" });
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [query, setQuery] = useState("");
 
@@ -192,6 +202,7 @@ export function App() {
             <CommandEditor
               key={editing?.id ?? "new"}
               initial={editing}
+              fromPage={mode.kind === "new" ? mode.fromPage : undefined}
               existing={commands}
               onSave={(d) => upsert(d, editing?.id)}
               onCancel={() => setMode({ kind: "list" })}

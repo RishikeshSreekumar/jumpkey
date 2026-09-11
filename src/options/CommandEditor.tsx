@@ -1,41 +1,80 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
+  alignTemplate,
+  buildTemplate,
+  nameFromTitle,
   normalizeDraft,
   parseAliases,
   parseTemplate,
+  splitUrl,
+  suggestVariables,
   validateDraft,
+  validateUrl,
   OPEN_MODES,
   type Command,
   type CommandDraft,
+  type Selection,
 } from "../core";
 import { Check, Close, Info, OPEN_MODE_LABELS, OpenModeIcon, Pencil, Plus } from "../shared/icons";
+import { VariablePicker } from "./VariablePicker";
+
+/** A concrete page to start a new Command from (the Launcher's "Add page"). */
+export type PageSeed = { url: string; title?: string };
 
 type Props = {
   initial?: Command;
+  /** Prefill a new Command from a page: ID-like URL parts become Variables. */
+  fromPage?: PageSeed;
   existing: readonly Command[];
   onSave: (draft: CommandDraft) => void | Promise<void>;
   onCancel: () => void;
 };
+
+/** A URL worth offering as a picker source: navigable, with a dotted host. */
+function pickerSource(template: string): string | undefined {
+  if (template.includes("{")) return undefined;
+  const v = validateUrl(template);
+  if (!v.ok) return undefined;
+  return new URL(v.url).hostname.includes(".") ? template : undefined;
+}
+
+function seededTemplate(seed: PageSeed | undefined): string {
+  if (!seed) return "";
+  const tokens = splitUrl(seed.url);
+  return tokens ? buildTemplate(tokens, suggestVariables(tokens)) : seed.url;
+}
 
 const MOD = navigator.platform.toLowerCase().includes("mac") ? "⌘" : "Ctrl";
 
 /** Editor state: like CommandDraft but aliases stay a raw string while typing. */
 type Fields = Omit<CommandDraft, "aliases"> & { aliases: string };
 
-export function CommandEditor({ initial, existing, onSave, onCancel }: Props) {
+export function CommandEditor({ initial, fromPage, existing, onSave, onCancel }: Props) {
   const [draft, setDraft] = useState<Fields>({
     keyword: initial?.keyword ?? "",
-    name: initial?.name ?? "",
-    template: initial?.template ?? "",
+    name: initial?.name ?? nameFromTitle(fromPage?.title),
+    template: initial?.template ?? seededTemplate(fromPage),
     openMode: initial?.openMode ?? "foreground-tab",
     aliases: (initial?.aliases ?? []).join(", "),
   });
   const [touched, setTouched] = useState(false);
+  // The concrete URL the picker chips come from. Seeded from the page, or from
+  // whatever variable-free URL the user last typed or pasted.
+  const [source, setSource] = useState<string | undefined>(() => fromPage?.url ?? pickerSource(initial?.template ?? ""));
 
   const normalized = useMemo(() => normalizeDraft({ ...draft, aliases: parseAliases(draft.aliases) }), [draft]);
   const validation = useMemo(() => validateDraft(normalized, existing, initial?.id), [normalized, existing, initial?.id]);
   const parsed = useMemo(() => parseTemplate(normalized.template), [normalized.template]);
   const variables = parsed.ok ? parsed.variables : [];
+
+  useEffect(() => {
+    const next = pickerSource(normalized.template);
+    if (next && next !== source) setSource(next);
+  }, [normalized.template, source]);
+
+  const tokens = useMemo(() => (source ? splitUrl(source) : null), [source]);
+  const selection = useMemo(() => (tokens ? alignTemplate(tokens, normalized.template) : null), [tokens, normalized.template]);
+  const pick = (next: Selection) => tokens && set("template", buildTemplate(tokens, next));
   const hasErrors = Object.keys(validation.errors).length > 0;
   const show = (field: keyof CommandDraft) => (touched ? validation.errors[field] : undefined);
 
@@ -102,6 +141,8 @@ export function CommandEditor({ initial, existing, onSave, onCancel }: Props) {
           {show("template") && <em className="err">{show("template")}</em>}
           {!show("template") && validation.warnings.map((w) => <em key={w} className="warn">{w}</em>)}
         </div>
+
+        {tokens && selection && <VariablePicker tokens={tokens} selection={selection} onChange={pick} />}
 
         {variables.length > 0 ? (
           <div className="argbox">

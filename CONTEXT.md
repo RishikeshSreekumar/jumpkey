@@ -40,5 +40,9 @@ _Avoid_: Palette, command palette, omnibox (that is a distinct, secondary surfac
 Where the rendered URL is loaded: the current tab or a new foreground tab.
 _Avoid_: Target, navigation behavior, tab mode
 
+**Slot**:
+A part of a concrete URL (host label, path segment, query value, hash segment) that the variable picker lets the user turn into a Variable.
+_Avoid_: Segment, part, chip (chip is the UI rendering of a Slot)
+
 **Shortcut**:
 Reserved for keyboard shortcuts only (e.g. the global shortcut that opens the Launcher). Never a synonym for Command.

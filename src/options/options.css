@@ -163,3 +163,32 @@ h1, h2, p { margin: 0; }
 
 .editor-foot { display: flex; align-items: center; gap: 8px; padding: 11px 14px; background: var(--sheet-2); border-top: 1px solid var(--rule-2); }
 .editor-foot .save-hint { font-family: var(--mono); font-size: 11px; color: var(--ink-5); }
+
+/* Variable picker: the source URL as clickable parts */
+.picker { display: flex; flex-direction: column; gap: 9px; padding: 11px 12px; background: var(--accent-wash); border: 1px solid var(--accent-rule); border-radius: 9px; }
+.picker-head { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; color: var(--accent-ink); }
+.picker-head svg { color: var(--accent); flex: none; }
+.linkbtn { padding: 3px 8px; font: inherit; font-size: 11.5px; font-weight: 700; color: var(--accent); background: var(--sheet); border: 1px solid var(--accent-rule); border-radius: 6px; cursor: pointer; }
+.linkbtn:hover { color: var(--sheet); background: var(--accent); border-color: var(--accent); }
+.linkbtn + .linkbtn { margin-left: 6px; }
+.picker-url {
+  display: flex; flex-wrap: wrap; align-items: center; row-gap: 6px; padding: 8px 10px; font-family: var(--mono); font-size: 12.5px; line-height: 1.5;
+  word-break: break-all; background: var(--sheet); border: 1px solid var(--accent-rule); border-radius: 7px;
+}
+.psep { color: var(--ink-5); white-space: pre; }
+.pslot {
+  display: inline-flex; align-items: center; max-width: 100%; padding: 2px 8px; margin: 0 2px; font: inherit; font-weight: 600; color: var(--accent-ink);
+  background: var(--sheet); border: 1.5px dashed var(--accent); border-radius: 6px; cursor: pointer; transition: background 0.12s, color 0.12s, box-shadow 0.12s;
+}
+.pslot:hover { color: var(--sheet); background: var(--accent-ink); border-style: solid; }
+.pslot.idlike { color: var(--accent-hover); background: var(--accent-wash-2); border-style: solid; box-shadow: 0 0 0 3px var(--accent-rule); }
+.pslot.idlike:hover { color: var(--sheet); background: var(--accent-ink); }
+.pslot.on { gap: 1px; padding-right: 4px; font-weight: 700; color: var(--sheet); background: var(--accent); border: 1.5px solid var(--accent); cursor: default; box-shadow: none; }
+.pslot.on .brace { opacity: 0.7; font-weight: 500; }
+.pname { padding: 0 1px; min-width: 1ch; font: inherit; font-weight: 700; color: inherit; background: transparent; border: 0; outline: 0; border-bottom: 1px dashed transparent; }
+.pname:focus { border-bottom-color: var(--sheet); }
+.pslot .unset {
+  display: grid; place-items: center; width: 16px; height: 16px; margin-left: 4px; padding: 0; color: var(--sheet);
+  background: rgba(255, 255, 255, 0.18); border: 0; border-radius: 4px; cursor: pointer;
+}
+.pslot .unset:hover { background: rgba(255, 255, 255, 0.35); }

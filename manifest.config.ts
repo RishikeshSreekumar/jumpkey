@@ -5,7 +5,7 @@ export default defineManifest({
   name: "JumpKey",
   description: "A command palette for parameterized URLs.",
   version: "0.0.1",
-  permissions: ["storage"],
+  permissions: ["storage", "activeTab"],
   icons: {
     16: "icons/icon-16.png",
     32: "icons/icon-32.png",

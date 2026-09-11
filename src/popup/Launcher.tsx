@@ -10,8 +10,9 @@ import {
 } from "../core";
 import { useStore } from "../storage/useStore";
 import { navigate } from "./navigate";
+import { addCurrentPage } from "./addPage";
 import { Logo } from "../shared/Logo";
-import { ArrowRight, Gear, OpenModeIcon } from "../shared/icons";
+import { ArrowRight, Gear, OpenModeIcon, Plus } from "../shared/icons";
 
 const MOD = navigator.platform.toLowerCase().includes("mac") ? "⌘" : "Ctrl";
 
@@ -47,6 +48,11 @@ export function Launcher() {
     } catch (e) {
       setRunError(e instanceof Error ? e.message : String(e));
     }
+  };
+
+  const addPage = async () => {
+    const r = await addCurrentPage();
+    if (!r.ok) setRunError(r.error);
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
@@ -89,6 +95,13 @@ export function Launcher() {
           chrome.runtime.openOptionsPage();
         }
         break;
+      case "s":
+      case "S":
+        if (e.metaKey || e.ctrlKey) {
+          e.preventDefault();
+          void addPage();
+        }
+        break;
     }
   };
 
@@ -122,6 +135,10 @@ export function Launcher() {
         ) : (
           <span className="esc">esc</span>
         )}
+        <button className="addpage" onClick={() => void addPage()} title={`Add this page as a command (${MOD}S)`} tabIndex={-1}>
+          <Plus size={13} strokeWidth={2.4} />
+          <span>Add page</span>
+        </button>
       </div>
 
       {active && <ArgumentTrail command={active} args={invocation.args} />}
@@ -152,7 +169,8 @@ export function Launcher() {
           {store && list.length === 0 && (
             <li className="empty">
               {commands.length === 0 ? "No commands yet." : "No matching commands."}{" "}
-              <a href="#" onClick={openOptions}>Create one</a>
+              <a href="#" onClick={openOptions}>Create one</a> or{" "}
+              <a href="#" onClick={(e) => { e.preventDefault(); void addPage(); }}>add this page</a>
             </li>
           )}
         </ul>
