@@ -1,0 +1,25 @@
+name: Starter request
+description: Ask for a ready-made Command for a tool
+labels: [starter]
+body:
+  - type: input
+    id: tool
+    attributes:
+      label: Tool
+      placeholder: Sentry
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Example URL
+      description: A real URL for one item, with private parts replaced by placeholders.
+      placeholder: https://yourorg.sentry.io/issues/4512345678/
+    validations:
+      required: true
+  - type: input
+    id: id-format
+    attributes:
+      label: What do the IDs look like?
+      description: Helps write a Pattern so copied IDs are recognized. Leave blank if unsure.
+      placeholder: "Numeric, 10 digits"

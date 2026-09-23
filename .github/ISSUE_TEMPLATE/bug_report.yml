@@ -1,0 +1,58 @@
+name: Bug report
+description: Something in JumpKey doesn't work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please search existing issues first. For security problems, see SECURITY.md instead of filing here.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Include the Command's Template and the exact Invocation you typed, if relevant. Replace private hostnames or IDs with placeholders.
+      placeholder: |
+        1. Template: https://example.atlassian.net/browse/{ticket}
+        2. Typed in the launcher: jira ENG-482
+        3. ...
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where did it happen?
+      multiple: true
+      options:
+        - Launcher (popup)
+        - Address bar (jk omnibox)
+        - Right-click menu
+        - Manage page
+        - Sync
+        - Other
+  - type: input
+    id: version
+    attributes:
+      label: JumpKey version
+      description: Shown at chrome://extensions.
+      placeholder: "0.2.0"
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and OS
+      placeholder: Chrome 140, macOS 15
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
+      description: Screenshots, errors from the extension's service worker console, etc.
