@@ -8,7 +8,11 @@
   <meta property="og:title" content="JumpKey" />
   <meta property="og:description" content="Open any page by typing its ID. Type jira ENG-482, land on the ticket." />
   <meta property="og:type" content="website" />
+  <meta property="og:image" content="og.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#efeae1" />
   <link rel="icon" href="logo.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -48,8 +52,7 @@
     .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
 
     /* Brand mark */
-    .mark { display: inline-flex; align-items: center; justify-content: center; background: var(--ink); color: var(--sheet); flex: none; }
-    .mark svg { display: block; }
+    .mark { display: block; flex: none; }
 
     /* Nav */
     .nav { display: flex; align-items: center; gap: 14px; padding: 22px 0; }
@@ -80,7 +83,7 @@
     .hero h1 { font-size: clamp(36px, 5vw, 54px); font-weight: 800; letter-spacing: -0.035em; }
     .hero h1 em { font-style: normal; color: var(--accent); }
     .lede { font-size: 18px; color: var(--ink-2); margin: 18px 0 0; max-width: 46ch; }
-    .lede code { font-size: .88em; }
+    .lede code { font-size: .88em; white-space: nowrap; }
     .cta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 28px; }
     .cta-note { font-size: 13px; color: var(--ink-3); margin-top: 12px; }
     .cta-note a { font-weight: 600; }
@@ -125,8 +128,32 @@
     .lfooter .key { display: flex; align-items: center; gap: 5px; }
     .lfooter .spacer { flex: 1; }
     .lfooter kbd { font-size: 10.5px; padding: 1px 4px; border-bottom-width: 1px; }
+    .trail.off, .status.off { visibility: hidden; }
+    .list li { transition: background .15s, border-color .15s; }
+    .lfooter kbd { transition: background .12s, color .12s, border-color .12s; }
+    .lfooter kbd.down { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .status.go { background: var(--ok-wash); border-color: #dbe5c3; color: var(--ok); }
+    .demo-dots { display: flex; justify-content: center; gap: 6px; margin-top: 16px; }
+    .demo-dots button { width: 7px; height: 7px; padding: 0; border: 0; border-radius: 999px; background: var(--ink-6); cursor: pointer; transition: width .2s, background .2s; }
+    .demo-dots button[aria-current="true"] { width: 20px; background: var(--accent); }
     .demo-caption { text-align: center; font-size: 12.5px; color: var(--ink-4); margin-top: 14px; }
     .demo-caption kbd { font-size: 11px; }
+
+    /* Starters strip */
+    .starters { padding: 0 0 56px; }
+    .starters .label { font-family: var(--mono); font-size: 12px; color: var(--ink-4); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 14px; text-align: center; }
+    .starters ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+    .starters li { display: inline-flex; align-items: center; gap: 8px; background: var(--sheet); border: 1px solid var(--rule); border-radius: 999px; padding: 5px 12px 5px 6px; font-size: 13.5px; font-weight: 500; color: var(--ink-2); }
+    .starters li code { font-size: 11.5px; font-weight: 700; color: var(--accent-ink); background: var(--accent-wash); border: 1px solid var(--accent-rule); border-radius: 999px; padding: 1px 7px; }
+
+    /* Closing band */
+    .closer { margin: 8px 0 64px; background: var(--ink); color: var(--sheet); border-radius: 24px; padding: 48px 40px; display: grid; grid-template-columns: auto 1fr auto; gap: 28px; align-items: center; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; }
+    .closer::after { content: ""; position: absolute; right: -80px; top: -120px; width: 360px; height: 360px; border-radius: 50%; background: radial-gradient(circle, rgba(226,98,43,.22), transparent 65%); pointer-events: none; }
+    .closer h2 { font-size: clamp(24px, 3vw, 32px); font-weight: 800; }
+    .closer p { margin: 8px 0 0; color: #cfc6b8; font-size: 15.5px; }
+    .closer p code { color: var(--sheet); background: rgba(253,252,250,.08); border: 1px solid rgba(253,252,250,.16); border-radius: 4px; padding: 1px 5px; }
+    .closer img { display: block; border-radius: 14px; box-shadow: 0 0 0 1px rgba(253,252,250,.14); }
+    .closer .btn { position: relative; z-index: 1; }
 
     /* Sections */
     section { padding: 64px 0; }
@@ -200,6 +227,8 @@
       .dl-card { position: static; }
       .nav .hide-sm { display: none; }
       section { padding: 48px 0; }
+      .demo::before { inset: -40px 0; }
+      .closer { grid-template-columns: 1fr; padding: 36px 24px; text-align: left; }
     }
     @media (max-width: 480px) {
       .lfooter .key:nth-child(3), .lfooter .key:nth-child(4) { display: none; }
@@ -216,7 +245,7 @@
   <div class="wrap">
     <nav class="nav">
       <a class="brand" href="#">
-        <span class="mark" style="width:28px;height:28px;border-radius:8px" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3 7 12h5l-1 9 6-9h-5l1-9Z"/></svg></span>
+        <img class="mark" src="logo.svg" width="28" height="28" alt="" />
         JumpKey
       </a>
       <span class="spacer"></span>
@@ -248,23 +277,23 @@
       <div class="demo" aria-label="JumpKey launcher preview">
         <div class="launcher">
           <div class="search">
-            <span class="mark" style="width:22px;height:22px;border-radius:6px" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3 7 12h5l-1 9 6-9h-5l1-9Z"/></svg></span>
-            <span class="typed">jira ENG-482<span class="caret"></span></span>
+            <img class="mark" src="logo.svg" width="22" height="22" alt="" />
+            <span class="typed"><span id="typed">jira ENG-482</span><span class="caret"></span></span>
             <span class="clear">×</span>
             <span class="addpage">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
               <span>Add page</span>
             </span>
           </div>
-          <div class="trail">
-            <span class="trail-kw">jira</span>
-            <span class="chip filled"><span class="chip-label">ticket</span><span class="chip-value">ENG-482</span></span>
+          <div class="trail" id="trail">
+            <span class="trail-kw" id="trail-kw">jira</span>
+            <span class="chip filled" id="chip"><span class="chip-label" id="chip-label">ticket</span><span class="chip-value" id="chip-value">ENG-482</span></span>
           </div>
-          <div class="status preview">
+          <div class="status preview" id="status">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13m0 0-5-5m5 5-5 5"/></svg>
-            <span class="url">https://acme.atlassian.net/browse/ENG-482</span>
+            <span class="url" id="url">https://acme.atlassian.net/browse/<b>ENG-482</b></span>
           </div>
-          <ul class="list">
+          <ul class="list" id="list">
             <li class="selected">
               <span class="kw">jira</span><span class="name">Jira ticket</span>
               <span class="hint"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 5h5v5M19 5l-8 8"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></svg>&lt;ticket&gt;</span>
@@ -283,7 +312,7 @@
             </li>
           </ul>
           <div class="lfooter">
-            <span class="key"><kbd>↵</kbd>open</span>
+            <span class="key"><kbd id="enter">↵</kbd>open</span>
             <span class="key"><kbd>⌘↵</kbd>new tab</span>
             <span class="key"><kbd>⇧↵</kbd>background</span>
             <span class="key"><kbd>⇥</kbd>complete</span>
@@ -291,9 +320,30 @@
             <span class="key">Manage <kbd>⌘,</kbd></span>
           </div>
         </div>
+        <div class="demo-dots" id="dots" role="group" aria-label="Examples"></div>
         <p class="demo-caption">Press <kbd>⌘</kbd><kbd>⇧</kbd><kbd>K</kbd> in Chrome, type, press Enter.</p>
       </div>
     </header>
+
+    <div class="starters" aria-label="Starters included">
+      <div class="label">22 starters, ready to switch on</div>
+      <ul>
+        <li><code>jira</code>Jira</li>
+        <li><code>lin</code>Linear</li>
+        <li><code>zd</code>Zendesk</li>
+        <li><code>conf</code>Confluence</li>
+        <li><code>pr</code>GitHub</li>
+        <li><code>npm</code>npm</li>
+        <li><code>cus</code>Stripe</li>
+        <li><code>order</code>Shopify</li>
+        <li><code>contact</code>HubSpot</li>
+        <li><code>ups</code>UPS</li>
+        <li><code>mail</code>Gmail</li>
+        <li><code>drive</code>Drive</li>
+        <li><code>yt</code>YouTube</li>
+        <li><code>wiki</code>Wikipedia</li>
+      </ul>
+    </div>
 
     <section id="examples">
       <div class="sec-head">
@@ -310,7 +360,7 @@
             <tr><td class="typed">zd 88410</td><td class="url">acme.zendesk.com/agent/tickets/<b>88410</b></td><td class="who">Support</td></tr>
             <tr><td class="typed">order 5531</td><td class="url">admin.shopify.com/store/acme/orders/<b>5531</b></td><td class="who">Store and ops teams</td></tr>
             <tr><td class="typed">cus cus_Pq2x9</td><td class="url">dashboard.stripe.com/customers/<b>cus_Pq2x9</b></td><td class="who">Billing questions</td></tr>
-            <tr><td class="typed">track 1Z999AA1</td><td class="url">ups.com/track?tracknum=<b>1Z999AA1</b></td><td class="who">Following a delivery</td></tr>
+            <tr><td class="typed">ups 1Z999AA1…</td><td class="url">ups.com/track?tracknum=<b>1Z999AA1…</b></td><td class="who">Following a delivery</td></tr>
             <tr><td class="typed">user 20931</td><td class="url">admin.yourapp.com/users/<b>20931</b></td><td class="who">Your own internal tools</td></tr>
             <tr><td class="typed">g best pizza near me</td><td class="url">google.com/search?q=<b>best%20pizza%20near%20me</b></td><td class="who">Searches work too</td></tr>
           </tbody>
@@ -443,10 +493,22 @@
       </div>
     </section>
 
+    <aside class="closer">
+      <img src="logo.svg" width="64" height="64" alt="" />
+      <div>
+        <h2>Your next ticket is two words away.</h2>
+        <p>Install once, then <code>jira ENG-482</code> is all it takes. Free, open source, no account.</p>
+      </div>
+      <a class="btn accent lg" href="jumpkey.zip" download>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0 4-4m-4 4-4-4"/><path d="M5 19h14"/></svg>
+        Download for Chrome
+      </a>
+    </aside>
+
     <footer>
       <div class="row">
         <span class="brand" style="font-size:15px">
-          <span class="mark" style="width:22px;height:22px;border-radius:6px" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3 7 12h5l-1 9 6-9h-5l1-9Z"/></svg></span>
+          <img class="mark" src="logo.svg" width="22" height="22" alt="" />
           JumpKey
         </span>
         <span class="pill" data-version>v0.2.0</span>
@@ -457,5 +519,79 @@
       </div>
     </footer>
   </div>
+  <script>
+    // Hero demo: types each example into the launcher mockup, then "presses" Enter.
+    (() => {
+      const examples = [
+        { kw: "jira", label: "ticket", value: "ENG-482", base: "https://acme.atlassian.net/browse/" },
+        { kw: "pr", label: "number", value: "1297", base: "https://github.com/acme/web/pull/" },
+        { kw: "order", label: "id", value: "5531", base: "https://admin.shopify.com/store/acme/orders/" },
+        { kw: "zd", label: "id", value: "88410", base: "https://acme.zendesk.com/agent/tickets/" },
+      ];
+      const $ = (id) => document.getElementById(id);
+      const typed = $("typed"), trail = $("trail"), trailKw = $("trail-kw"), chip = $("chip"), chipLabel = $("chip-label"),
+        chipValue = $("chip-value"), status = $("status"), url = $("url"), enter = $("enter"), dots = $("dots");
+      const rows = [...$("list").children];
+      const esc = (t) => t.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
+
+      function render(ex, text) {
+        typed.textContent = text;
+        const [word, ...rest] = text.split(" ");
+        const value = rest.join(" ");
+        const hit = examples.findIndex((e) => word && e.kw.startsWith(word));
+        rows.forEach((li, i) => li.classList.toggle("selected", i === (hit < 0 ? 0 : hit)));
+        const started = text.includes(" ");
+        trail.classList.toggle("off", !started);
+        status.classList.toggle("off", !started);
+        if (!started) return;
+        trailKw.textContent = ex.kw;
+        chipLabel.textContent = ex.label;
+        chipValue.textContent = value;
+        chip.className = "chip " + (value ? "filled" : "next");
+        url.innerHTML = esc(ex.base) + "<b>" + esc(value || "{" + ex.label + "}") + "</b>";
+      }
+
+      examples.forEach((ex, i) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.setAttribute("aria-label", ex.kw + " " + ex.value);
+        b.addEventListener("click", () => play(i));
+        dots.appendChild(b);
+      });
+      const mark = (i) => [...dots.children].forEach((b, j) => b.setAttribute("aria-current", String(i === j)));
+
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        dots.remove();
+        return;
+      }
+
+      let timer, index = 0;
+      const wait = (ms) => new Promise((r) => (timer = setTimeout(r, ms)));
+      let run = 0;
+      async function play(i) {
+        const me = ++run;
+        clearTimeout(timer);
+        index = i;
+        const ex = examples[i];
+        const full = ex.kw + " " + ex.value;
+        mark(i);
+        status.classList.remove("go");
+        enter.classList.remove("down");
+        for (let n = 0; n <= full.length; n++) {
+          if (me !== run) return;
+          render(ex, full.slice(0, n));
+          await wait(n === ex.kw.length ? 260 : 70 + Math.random() * 60);
+        }
+        await wait(900);
+        if (me !== run) return;
+        enter.classList.add("down");
+        status.classList.add("go");
+        await wait(1600);
+        if (me !== run) return;
+        play((index + 1) % examples.length);
+      }
+      play(0);
+    })();
+  </script>
 </body>
 </html>

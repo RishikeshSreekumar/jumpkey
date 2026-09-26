@@ -20,7 +20,6 @@ function Svg({ size = 14, strokeWidth = 2, children }: IconProps & { children: R
   );
 }
 
-export const Bolt = (p: IconProps) => <Svg {...p}><path d="M13 3 7 12h5l-1 9 6-9h-5l1-9Z" /></Svg>;
 export const Search = (p: IconProps) => <Svg {...p}><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></Svg>;
 export const Plus = (p: IconProps) => <Svg {...p}><path d="M12 5v14M5 12h14" /></Svg>;
 export const Close = (p: IconProps) => <Svg {...p}><path d="m6 6 12 12M18 6 6 18" /></Svg>;

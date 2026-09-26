@@ -50,13 +50,6 @@ kbd {
 }
 .logo { flex-shrink: 0; display: block; }
 
-/* Brand mark: ink square with bolt */
-.mark {
-  display: flex; align-items: center; justify-content: center; border-radius: 7px;
-  background: var(--ink); color: var(--sheet); flex: none;
-}
-.mark svg { display: block; }
-
 /* Icon buttons shared by manage page and popup */
 .ibtn {
   display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; padding: 0;
